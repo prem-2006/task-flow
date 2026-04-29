@@ -7,3 +7,4 @@
 - refactor: hydration mismatch
 - style: layout shift
 - docs: modal backdrop blur
+- ci: missing keys in list
