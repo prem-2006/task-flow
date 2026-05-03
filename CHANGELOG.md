@@ -8,3 +8,4 @@
 - style: layout shift
 - docs: modal backdrop blur
 - ci: missing keys in list
+- fix: input validation
