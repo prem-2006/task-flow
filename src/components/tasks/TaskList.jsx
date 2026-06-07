@@ -25,7 +25,7 @@ export default function TaskList({ tasks, isLoading, onTaskClick }) {
         </div>
         <h3 className="text-lg font-medium text-[var(--text-primary)] mb-1">No tasks found</h3>
         <p className="text-sm max-w-sm">
-          Get started by creating a new task, or adjust your filters if you're looking for something specific.
+          Get started by creating a new task, or adjust your filters if you&apos;re looking for something specific.
         </p>
       </div>
     );
