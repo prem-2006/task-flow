@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import jsonStore from '@/lib/jsonStore';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 
 export async function POST(request) {
   try {
@@ -20,8 +21,9 @@ export async function POST(request) {
       );
     }
 
+    await dbConnect();
     // Check if user already exists
-    const existingUser = jsonStore.users.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return NextResponse.json(
         { error: 'An account with this email already exists' },
@@ -33,7 +35,7 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user
-    const user = jsonStore.users.create({
+    const user = await User.create({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,

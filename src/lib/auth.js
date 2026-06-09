@@ -2,8 +2,8 @@ import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import bcrypt from 'bcryptjs';
-import jsonStore, { hydrateDoc } from '@/lib/jsonStore';
-
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 export const authOptions = {
   providers: [
     GoogleProvider({
@@ -39,7 +39,8 @@ export const authOptions = {
           throw new Error('Email and password required');
         }
 
-        const user = jsonStore.users.findOne({ email: credentials.email.toLowerCase() });
+        await dbConnect();
+        const user = await User.findOne({ email: credentials.email.toLowerCase() });
 
         if (!user || !user.password) {
           throw new Error('Invalid email or password');
@@ -74,9 +75,10 @@ export const authOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === 'google') {
-        let dbUser = hydrateDoc(jsonStore.users.findOne({ email: user.email.toLowerCase() }), 'users');
+        await dbConnect();
+        let dbUser = await User.findOne({ email: user.email.toLowerCase() });
         if (!dbUser) {
-          dbUser = jsonStore.users.create({
+          dbUser = await User.create({
             email: user.email.toLowerCase(),
             name: user.name,
             image: user.image,

@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
-import jsonStore from '@/lib/jsonStore';
+import dbConnect from '@/lib/mongodb';
+import Reminder from '@/models/Reminder';
+import User from '@/models/User';
+import Task from '@/models/Task';
 import { sendReminderEmail } from '@/lib/email';
 import { headers } from 'next/headers';
 
@@ -17,18 +20,22 @@ export async function GET(request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Find unsent reminders where triggerAt is in the past
-    const pendingReminders = jsonStore.reminders.find().filter(r => !r.sent && new Date(r.triggerAt) <= new Date());
+    await dbConnect();
+    // Find unsent reminders where sendAt is in the past
+    const pendingReminders = await Reminder.find({
+      status: 'pending',
+      sendAt: { $lte: new Date() }
+    });
 
     let sentCount = 0;
 
     for (const reminder of pendingReminders) {
-      const user = jsonStore.users.findOne({ _id: reminder.userId });
-      const task = jsonStore.tasks.findOne({ _id: reminder.taskId });
+      const user = await User.findById(reminder.userId);
+      const task = await Task.findById(reminder.taskId);
 
       // Skip if task was completed or deleted
       if (!task || task.status === 'done' || !user) {
-        jsonStore.reminders.update(reminder._id, { sent: true });
+        await Reminder.findByIdAndUpdate(reminder._id, { status: 'failed' });
         continue;
       }
 
@@ -46,13 +53,13 @@ export async function GET(request) {
         });
 
         if (success) {
-          jsonStore.reminders.update(reminder._id, { sent: true });
+          await Reminder.findByIdAndUpdate(reminder._id, { status: 'sent' });
           sentCount++;
         }
       } else {
         // If it's a push notification, handle web-push logic here
         // (Assuming web-push is implemented separately via Service Worker)
-        jsonStore.reminders.update(reminder._id, { sent: true });
+        await Reminder.findByIdAndUpdate(reminder._id, { status: 'sent' });
       }
     }
 
