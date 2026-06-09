@@ -22,18 +22,9 @@ export const authOptions = {
       name: 'Credentials',
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-        isDemoBypass: { label: "Demo Bypass", type: "text" }
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (credentials?.isDemoBypass === 'true') {
-          return {
-            id: '000000000000000000000000',
-            name: 'Demo User',
-            email: 'demo@taskflow.dev',
-            image: '',
-          };
-        }
 
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email and password required');
