@@ -118,6 +118,7 @@ export const authOptions = {
     },
   },
 
+  useSecureCookies: false,
   secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_demo_purposes_only',
 };
 

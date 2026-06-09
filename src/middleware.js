@@ -18,7 +18,7 @@ export async function middleware(request) {
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET || 'fallback_secret_for_demo_purposes_only',
-    secureCookie: process.env.NODE_ENV === 'production',
+    secureCookie: false,
   });
 
   // Redirect to login if not authenticated
